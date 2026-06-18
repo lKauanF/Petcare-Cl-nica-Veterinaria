@@ -1,0 +1,218 @@
+<div class="page-shell">
+  <header class="hero">
+    <div>
+      <p class="eyebrow">Sistema de Clínica Veterinária</p>
+      <h1>PetCare</h1>
+      <p>Cadastro de tutores, animais, agendamento de consultas e controle automático de status.</p>
+    </div>
+    <button type="button" class="secondary-button" (click)="carregarTudo()">Atualizar dados</button>
+  </header>
+
+  <section class="messages" *ngIf="mensagem || erro">
+    <p class="success" *ngIf="mensagem">{{ mensagem }}</p>
+    <p class="error" *ngIf="erro">{{ erro }}</p>
+  </section>
+
+  <section class="dashboard-grid" *ngIf="dashboard">
+    <article class="metric-card">
+      <span>Animais</span>
+      <strong>{{ dashboard.totalAnimais }}</strong>
+    </article>
+    <article class="metric-card">
+      <span>Tutores</span>
+      <strong>{{ dashboard.totalTutores }}</strong>
+    </article>
+    <article class="metric-card">
+      <span>Realizadas</span>
+      <strong>{{ dashboard.totalConsultasRealizadas }}</strong>
+    </article>
+    <article class="metric-card">
+      <span>Agendadas</span>
+      <strong>{{ dashboard.totalConsultasAgendadas }}</strong>
+    </article>
+  </section>
+
+  <main class="content-grid">
+    <section class="card">
+      <h2>Cadastrar tutor</h2>
+      <form [formGroup]="tutorForm" (ngSubmit)="criarTutor()" class="form-grid">
+        <label>
+          Nome
+          <input type="text" formControlName="nome" placeholder="Maria Silva">
+        </label>
+        <label>
+          Telefone
+          <input type="text" formControlName="telefone" placeholder="62999990000">
+        </label>
+        <label>
+          E-mail
+          <input type="email" formControlName="email" placeholder="maria@email.com">
+        </label>
+        <label>
+          Endereço
+          <input type="text" formControlName="endereco" placeholder="Rua A, 123">
+        </label>
+        <button type="submit" [disabled]="loading">Salvar tutor</button>
+      </form>
+
+      <div class="list">
+        <article class="list-item" *ngFor="let tutor of tutores">
+          <div>
+            <strong>{{ tutor.nome }}</strong>
+            <span>{{ tutor.email }} | {{ tutor.telefone }}</span>
+            <small>{{ tutor.endereco }} | Animais: {{ tutor.totalAnimais }}</small>
+          </div>
+          <button type="button" class="danger-button" (click)="excluirTutor(tutor.id)">Excluir</button>
+        </article>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Cadastrar animal</h2>
+      <form [formGroup]="animalForm" (ngSubmit)="criarAnimal()" class="form-grid">
+        <label>
+          Nome
+          <input type="text" formControlName="nome" placeholder="Rex">
+        </label>
+        <label>
+          Espécie
+          <select formControlName="especie">
+            <option *ngFor="let especie of especies" [value]="especie">{{ especie }}</option>
+          </select>
+        </label>
+        <label>
+          Raça
+          <input type="text" formControlName="raca" placeholder="Vira-lata">
+        </label>
+        <label>
+          Nascimento
+          <input type="date" formControlName="dataNascimento">
+        </label>
+        <label class="full-field">
+          Tutor
+          <select formControlName="tutorId">
+            <option [ngValue]="null">Selecione</option>
+            <option *ngFor="let tutor of tutores" [value]="tutor.id">{{ tutor.nome }}</option>
+          </select>
+        </label>
+        <button type="submit" [disabled]="loading">Salvar animal</button>
+      </form>
+
+      <form [formGroup]="filtroAnimalForm" (ngSubmit)="listarAnimais()" class="filter-grid">
+        <select formControlName="especie">
+          <option value="">Todas as espécies</option>
+          <option *ngFor="let especie of especies" [value]="especie">{{ especie }}</option>
+        </select>
+        <select formControlName="tutorId">
+          <option value="">Todos os tutores</option>
+          <option *ngFor="let tutor of tutores" [value]="tutor.id">{{ tutor.nome }}</option>
+        </select>
+        <input type="text" formControlName="busca" placeholder="Buscar por animal ou tutor">
+        <button type="submit" class="secondary-button">Filtrar</button>
+      </form>
+
+      <div class="list">
+        <article class="list-item" *ngFor="let animal of animais">
+          <div>
+            <strong>{{ animal.nome }} | {{ animal.especie }}</strong>
+            <span>{{ animal.raca }} | Tutor: {{ animal.tutorNome }}</span>
+            <small>Nascimento: {{ animal.dataNascimento }}</small>
+          </div>
+          <button type="button" class="danger-button" (click)="excluirAnimal(animal.id)">Excluir</button>
+        </article>
+      </div>
+    </section>
+
+    <section class="card wide-card">
+      <h2>Agendar consulta</h2>
+      <form [formGroup]="consultaForm" (ngSubmit)="agendarConsulta()" class="form-grid consultation-form">
+        <label>
+          Animal
+          <select formControlName="animalId">
+            <option [ngValue]="null">Selecione</option>
+            <option *ngFor="let animal of animais" [value]="animal.id">{{ animal.nome }} - {{ animal.tutorNome }}</option>
+          </select>
+        </label>
+        <label>
+          Data e hora
+          <input type="datetime-local" formControlName="dataHoraAgendada">
+        </label>
+        <label>
+          Valor
+          <input type="number" min="0" step="0.01" formControlName="valor">
+        </label>
+        <label>
+          Motivo
+          <input type="text" formControlName="motivo" placeholder="Consulta de rotina">
+        </label>
+        <button type="submit" [disabled]="loading">Agendar</button>
+      </form>
+
+      <form [formGroup]="filtroConsultaForm" (ngSubmit)="listarConsultas()" class="filter-grid">
+        <select formControlName="status">
+          <option value="">Todos os status</option>
+          <option *ngFor="let status of statusConsultas" [value]="status">{{ status }}</option>
+        </select>
+        <select formControlName="animalId">
+          <option value="">Todos os animais</option>
+          <option *ngFor="let animal of animais" [value]="animal.id">{{ animal.nome }}</option>
+        </select>
+        <button type="submit" class="secondary-button">Filtrar consultas</button>
+      </form>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Animal</th>
+              <th>Tutor</th>
+              <th>Agendada</th>
+              <th>Status</th>
+              <th>Valor</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let consulta of consultas">
+              <td>{{ consulta.animalNome }}</td>
+              <td>{{ consulta.tutorNome }}</td>
+              <td>{{ formatarDataHora(consulta.dataHoraAgendada) }}</td>
+              <td><span class="status" [class.realizada]="consulta.status === 'REALIZADA'" [class.cancelada]="consulta.status === 'CANCELADA'">{{ consulta.status }}</span></td>
+              <td>{{ consulta.valor | currency:'BRL' }}</td>
+              <td class="actions-cell">
+                <button type="button" class="secondary-button" [disabled]="consultaFinalizada(consulta)" (click)="abrirRealizacao(consulta)">Realizar</button>
+                <button type="button" class="danger-button" [disabled]="consultaFinalizada(consulta)" (click)="cancelarConsulta(consulta.id)">Cancelar</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card" *ngIf="consultaSelecionada">
+      <h2>Realizar consulta</h2>
+      <p>Consulta de {{ consultaSelecionada.animalNome }} com tutor {{ consultaSelecionada.tutorNome }}.</p>
+      <form [formGroup]="realizarForm" (ngSubmit)="realizarConsulta()" class="form-grid single-column">
+        <label>
+          Diagnóstico
+          <textarea rows="4" formControlName="diagnostico" placeholder="Animal saudável. Vacinação atualizada."></textarea>
+        </label>
+        <button type="submit">Confirmar realização</button>
+      </form>
+    </section>
+
+    <section class="card" *ngIf="dashboard">
+      <h2>Próximas consultas</h2>
+      <div class="list">
+        <article class="list-item" *ngFor="let consulta of dashboard.proximasConsultas">
+          <div>
+            <strong>{{ consulta.animalNome }}</strong>
+            <span>{{ formatarDataHora(consulta.dataHoraAgendada) }}</span>
+            <small>{{ consulta.motivo }}</small>
+          </div>
+          <span class="status">{{ consulta.status }}</span>
+        </article>
+      </div>
+    </section>
+  </main>
+</div>

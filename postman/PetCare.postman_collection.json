@@ -1,0 +1,53 @@
+{
+  "info": {
+    "name": "PetCare API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Listar Tutores",
+      "request": {
+        "method": "GET",
+        "url": "http://localhost:8080/api/tutores"
+      }
+    },
+    {
+      "name": "Criar Tutor",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nome\": \"Ana Souza\",\n  \"telefone\": \"62977770000\",\n  \"email\": \"ana@email.com\",\n  \"endereco\": \"Rua C, 789\"\n}"
+        },
+        "url": "http://localhost:8080/api/tutores"
+      }
+    },
+    {
+      "name": "Listar Animais",
+      "request": {
+        "method": "GET",
+        "url": "http://localhost:8080/api/animais"
+      }
+    },
+    {
+      "name": "Agendar Consulta",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"animalId\": 1,\n  \"dataHoraAgendada\": \"2026-06-20T14:30:00\",\n  \"motivo\": \"Consulta de rotina\",\n  \"valor\": 120.00\n}"
+        },
+        "url": "http://localhost:8080/api/consultas/agendar"
+      }
+    },
+    {
+      "name": "Dashboard",
+      "request": {
+        "method": "GET",
+        "url": "http://localhost:8080/api/dashboard"
+      }
+    }
+  ]
+}
